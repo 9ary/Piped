@@ -88,7 +88,7 @@ export default {
         this.hotkeysPromise.then(() => {
             var self = this;
             this.$hotkeys(
-                "f,m,j,k,l,c,space,up,down,left,right,0,1,2,3,4,5,6,7,8,9,shift+n,shift+,,shift+.",
+                "f,m,j,k,l,c,space,up,down,left,right,0,1,2,3,4,5,6,7,8,9,shift+n,shift+,,shift+.,return",
                 function (e, handler) {
                     const videoEl = self.$refs.videoEl;
                     switch (handler.key) {
@@ -183,6 +183,9 @@ export default {
                             break;
                         case "shift+.":
                             self.$player.trickPlay(Math.min(videoEl.playbackRate + 0.25, 2));
+                            break;
+                        case "return":
+                            self.skipSegment(videoEl);
                             break;
                     }
                 },
@@ -403,6 +406,7 @@ export default {
         skipSegment(videoEl, segment) {
             const time = videoEl.currentTime;
             if (!segment) segment = this.findCurrentSegment(time);
+            if (!segment) return;
             console.log("Skipped segment at " + time);
             videoEl.currentTime = segment.segment[1];
             segment.skipped = true;
@@ -480,7 +484,7 @@ export default {
                         this.parent.appendChild(this.button_);
 
                         this.eventManager.listen(this.button_, "click", () => {
-                            videoPlayerComponent.skipSegment(videoEl, null);
+                            videoPlayerComponent.skipSegment(videoEl);
                         });
 
                         videoEl.addEventListener("segmentupdate", e => {
