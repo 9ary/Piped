@@ -371,8 +371,8 @@ export default {
                             },
                         });
                         videoEl.dispatchEvent(segmentUpdate);
-                        if (segment && (!segment.skipped || this.selectedAutoLoop)) {
-                            //this.skipSegment(videoEl, segment);
+                        if (segment?.autoskip && (!segment.skipped || this.selectedAutoLoop)) {
+                            this.skipSegment(videoEl, segment);
                         }
                     }
                 });
@@ -401,7 +401,7 @@ export default {
             //TODO: Add sponsors on seekbar: https://github.com/ajayyy/SponsorBlock/blob/e39de9fd852adb9196e0358ed827ad38d9933e29/src/js-components/previewBar.ts#L12
         },
         findCurrentSegment(time) {
-            return this.sponsors.segments.find(s => time >= s.segment[0] && time < s.segment[1]);
+            return this.sponsors?.segments?.find(s => time >= s.segment[0] && time < s.segment[1]);
         },
         skipSegment(videoEl, segment) {
             const time = videoEl.currentTime;
@@ -750,6 +750,11 @@ export default {
     },
     watch: {
         sponsors() {
+            const skipOptions = JSON.parse(this.getPreferenceString("skipOptions", "{}"));
+            this.sponsors?.segments?.forEach(segment => {
+                const option = skipOptions[segment.category];
+                segment.autoskip = option === undefined || option === "auto";
+            });
             if (this.getPreferenceBoolean("showMarkers", true)) {
                 this.shakaPromise.then(() => {
                     this.updateMarkers();
